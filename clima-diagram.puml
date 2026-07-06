@@ -1,0 +1,67 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+
+
+class ClimaActual {
+    -fechaConsulta : LocalDateTime
+    -pais : String
+    -ciudad : String
+    -temperatura : Double
+    -humedad : Integer
+    -condicion : String
+    -revisado : Boolean
+}
+
+class Destinatario {
+    -id : Long
+    -activo : Boolean
+}
+
+class Contacto {
+    -contacto : String
+    -tipo : TipoContacto
+}
+
+enum TipoContacto {
+    EMAIL
+}
+
+Destinatario *-- Contacto
+Contacto --> TipoContacto
+
+
+
+
+interface Notificador {
+    +enviarAlerta()
+}
+
+interface ProveedorEmail {
+    +enviarEmail()
+}
+
+interface ClimaProvider {
+    +obtenerClimaActual()
+}
+
+
+
+
+
+class EmailAdapter {
+    -proveedorEmail : ProveedorEmail
+}
+
+class TwilioAdapter
+
+class WeatherApiAdapter
+
+
+
+EmailAdapter ..|> Notificador
+WeatherApiAdapter ..|> ClimaProvider
+TwilioAdapter ..|> ProveedorEmail
+
+@enduml

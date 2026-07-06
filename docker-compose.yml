@@ -1,0 +1,14 @@
+services:
+
+  clima-service:
+    build:
+      context: .
+      dockerfile: clima-service/Dockerfile
+      args:
+        SERVICE_NAME: clima-service
+        SERVICE_PORT: 8084
+    container_name: climaalert-clima-service
+    ports:
+      - "8084:8084"
+    networks:
+      - climaalert
