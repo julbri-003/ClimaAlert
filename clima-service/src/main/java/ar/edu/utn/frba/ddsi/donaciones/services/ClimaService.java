@@ -18,6 +18,7 @@ public class ClimaService {
     private final ClimaProvider climaProvider;
 
     public ClimaActual obtenerYGuardarClima() {
+
         ClimaData datos = climaProvider.obtenerClimaActual();
 
         ClimaActual clima = new ClimaActual(

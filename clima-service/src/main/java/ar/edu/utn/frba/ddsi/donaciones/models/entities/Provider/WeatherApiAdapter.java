@@ -4,6 +4,8 @@ import ar.edu.utn.frba.ddsi.donaciones.dto.ClimaData;
 import ar.edu.utn.frba.ddsi.donaciones.dto.WeatherApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,30 +29,29 @@ public class WeatherApiAdapter implements ClimaProvider {
     }
 
     @Override
+    @Retryable(retryFor = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public ClimaData obtenerClimaActual() {
 
         String url = String.format( "%s/current.json?key=%s&q=%s&lang=es", apiUrl, apiKey, ubicacion);
 
-        try {
-            WeatherApiResponse response = restTemplate.getForObject(url, WeatherApiResponse.class);
+        WeatherApiResponse response = restTemplate.getForObject(url, WeatherApiResponse.class);
 
-            if (response == null) {
-                throw new RuntimeException("WeatherAPI devolvió una respuesta vacía");
-            }
-
-            return ClimaData.builder()
-                    .ciudad(response.getLocation().getName())
-                    .pais(response.getLocation().getCountry())
-                    .temperatura(response.getCurrent().getTempC())
-                    .humedad(response.getCurrent().getHumidity())
-                    .condicion(response.getCurrent()
-                                    .getCondition()
-                                    .getText())
-                    .build();
-
-        } catch (Exception e) {
-            throw new RuntimeException("No se pudo obtener el clima", e);
+        if (response == null) {
+            throw new RuntimeException("WeatherAPI devolvió una respuesta vacía");
         }
 
+        return mapear(response);
+    }
+
+    public ClimaData mapear(WeatherApiResponse response){
+        return ClimaData.builder()
+                .ciudad(response.getLocation().getName())
+                .pais(response.getLocation().getCountry())
+                .temperatura(response.getCurrent().getTempC())
+                .humedad(response.getCurrent().getHumidity())
+                .condicion(response.getCurrent()
+                        .getCondition()
+                        .getText())
+                .build();
     }
 }
