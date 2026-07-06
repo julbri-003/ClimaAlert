@@ -1,5 +1,6 @@
 package ar.edu.utn.frba.ddsi.donaciones.models.repositories.InMemory;
 
+import ar.edu.utn.frba.ddsi.donaciones.models.entities.Contacto.Contacto;
 import ar.edu.utn.frba.ddsi.donaciones.models.entities.Destinatario;
 import ar.edu.utn.frba.ddsi.donaciones.models.repositories.DestinatariosRepository;
 import org.springframework.stereotype.Repository;
@@ -8,10 +9,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static ar.edu.utn.frba.ddsi.donaciones.models.entities.Contacto.TipoDeContacto.EMAIL;
+
 @Repository
 public class InMemoryDestinatariosRepository implements DestinatariosRepository {
     private final List<Destinatario> destinatarios = new ArrayList<>();
     private Long nextId = 1L;
+
+    public InMemoryDestinatariosRepository() {
+        inicializarDestinatarios();
+    }
+
+    private void inicializarDestinatarios() {
+        Contacto admin = new Contacto("admin@clima.com", EMAIL);
+        Contacto emergencia = new Contacto("emergencias@clima.com", EMAIL);
+        Contacto meteorologia = new Contacto("meteorologia@clima.com", EMAIL);
+
+        Destinatario adminD= new Destinatario(1L, admin, true);
+        Destinatario emergenciaD= new Destinatario(2L, emergencia, true);
+        Destinatario meteorologiaD= new Destinatario(3L, meteorologia, true);
+
+        save(adminD);
+
+        save(emergenciaD);
+
+        save(meteorologiaD);
+    }
+
 
     @Override
     public Optional<List<Destinatario>> findAll() {

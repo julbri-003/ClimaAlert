@@ -31,18 +31,26 @@ public class WeatherApiAdapter implements ClimaProvider {
 
         String url = String.format( "%s/current.json?key=%s&q=%s&lang=es", apiUrl, apiKey, ubicacion);
 
-        WeatherApiResponse response = restTemplate.getForObject(url, WeatherApiResponse.class);
+        try {
+            WeatherApiResponse response = restTemplate.getForObject(url, WeatherApiResponse.class);
 
-        if (response == null) {
-            throw new RuntimeException("No se pudo obtener el clima");
+            if (response == null) {
+                throw new RuntimeException("WeatherAPI devolvió una respuesta vacía");
+            }
+
+            return ClimaData.builder()
+                    .ciudad(response.getLocation().getName())
+                    .pais(response.getLocation().getCountry())
+                    .temperatura(response.getCurrent().getTempC())
+                    .humedad(response.getCurrent().getHumidity())
+                    .condicion(response.getCurrent()
+                                    .getCondition()
+                                    .getText())
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo obtener el clima", e);
         }
 
-        return ClimaData.builder()
-                .ciudad(response.getLocation().getName())
-                .pais(response.getLocation().getCountry())
-                .temperatura(response.getCurrent().getTempC())
-                .condicion(response.getCurrent().getCondition().getText())
-                .humedad(response.getCurrent().getHumidity())
-                .build();
     }
 }
